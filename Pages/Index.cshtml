@@ -1,0 +1,31 @@
+﻿@page
+@model AZ_204_SrC4.Pages.IndexModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Mi aplicación - ChatBot - V1</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<!-- Formulario para subir archivos -->
+<div class="container mt-4">
+    <h2>Subir Archivo para Procesamiento</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <input type="file" asp-for="UploadedFile" class="form-control" required />
+        </div>
+        <button type="submit" asp-page-handler="Upload" class="btn btn-primary">Subir y Procesar</button>
+    </form>
+
+    <!-- Mostrar resultado del procesamiento -->
+    @if (!string.IsNullOrEmpty(Model.Output))
+    {
+        <div class="mt-4">
+            <h3>Resultado del procesamiento:</h3>
+            <pre>@Model.Output</pre>
+        </div>
+    }
+</div>
