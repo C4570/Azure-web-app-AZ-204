@@ -1,0 +1,28 @@
+﻿@page
+@model AZ_204_SrC4.Pages.LoginModel
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<div class="container mt-4">
+    <h2>Iniciar Sesión - Demo</h2>
+
+    <form method="post">
+        <div class="mb-3">
+            <label for="Username">Usuario:</label>
+            <input type="text" asp-for="Username" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label for="Password">Contraseña:</label>
+            <input type="password" asp-for="Password" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Ingresar</button>
+    </form>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger mt-2">
+            @Model.ErrorMessage
+        </div>
+    }
+</div>

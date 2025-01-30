@@ -14,49 +14,60 @@ namespace AZ_204_SrC4.Pages
         public IndexModel(ILogger<IndexModel> logger)
         {
             _logger = logger;
-            Output = "";  // Inicializa la variable Output para evitar errores
+            Output = "";
         }
 
         [BindProperty]
-        public IFormFile? UploadedFile { get; set; } // Propiedad para recibir el archivo
+        public IFormFile? UploadedFile { get; set; }
 
-        public string Output { get; private set; }  // Resultado del procesamiento
+        public string Output { get; private set; }
 
         public async Task<IActionResult> OnPostUploadAsync()
         {
             if (UploadedFile != null)
             {
-                // Crear la carpeta 'wwwroot/uploads' si no existe
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-                Directory.CreateDirectory(uploadsFolder);
+                // Validar extensión en servidor
+                var allowedExtensions = new List<string> { ".pdf", ".doc", ".docx", ".png", ".jpg", ".jpeg" };
+                var fileExtension = Path.GetExtension(UploadedFile.FileName).ToLowerInvariant();
 
-                // Guardar el archivo subido
-                var filePath = Path.Combine(uploadsFolder, UploadedFile.FileName);
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    Output = "Tipo de archivo no permitido. Solo PDF, DOC, DOCX, PNG, JPG.";
+                    return Page();
+                }
+
+                // Carpeta "CVs"
+                var cvsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "CVs");
+                Directory.CreateDirectory(cvsFolder);
+
+                // Guardamos el archivo
+                var filePath = Path.Combine(cvsFolder, UploadedFile.FileName);
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await UploadedFile.CopyToAsync(stream);
                 }
 
-                // Ejecutar el script de Python y obtener la salida
+                // (Opcional) Ejecutar script de Python
                 Output = RunPythonScript(filePath);
             }
-
             return Page();
         }
 
+
         private string RunPythonScript(string filePath)
         {
-            string scriptPath = Path.Combine(Directory.GetCurrentDirectory(), "Scripts", "procesar.py"); // Ruta del script Python
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "python";  // Python debe estar en la variable de entorno
-            psi.Arguments = $"\"{scriptPath}\" \"{filePath}\""; // Pasar el archivo al script de Python
-            psi.RedirectStandardOutput = true;
-            psi.RedirectStandardError = true;
-            psi.UseShellExecute = false;
-            psi.CreateNoWindow = true;
+            string scriptPath = Path.Combine(Directory.GetCurrentDirectory(), "Scripts", "procesar.py");
+            var psi = new ProcessStartInfo
+            {
+                FileName = "python",
+                Arguments = $"\"{scriptPath}\" \"{filePath}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
 
-            Process process = new Process();
-            process.StartInfo = psi;
+            var process = new Process { StartInfo = psi };
             process.Start();
 
             string output = process.StandardOutput.ReadToEnd();

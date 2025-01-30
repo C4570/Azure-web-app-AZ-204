@@ -7,4 +7,8 @@
     <RootNamespace>AZ_204_SrC4</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Scripts\" />
+  </ItemGroup>
+
 </Project>
